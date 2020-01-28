@@ -1,5 +1,6 @@
 #!/usr/bin/bash -x
 
+#this method is used to find the player winning percentage
 function gambler() {
     stack=$1
     goal=$2
@@ -22,4 +23,29 @@ function gambler() {
     echo "player $wins of $noOfTimes times"
     winpercentage=$((100*(wins/noOfTimes)))
     echo "winning percentage of player is : $winpercentage"
+}
+
+#this method is used generate couponcodes
+couponCodeGenerator(){
+  couponcode=$1
+  echo $couponcode
+  length=5
+  echo $length
+  declare -a couponarray
+  couponstring=""
+  echo ${#couponcode}
+  echo "enter how many coupons required :"
+  read noOfCoupons
+  for (( coupons = 0; coupons < $noOfCoupons; coupons++ ));
+   do
+    for (( index=0; index < $length; index++ ));
+     do
+      random=$(shuf -i 0-22 -n 1)
+      coupchar=${couponcode:$random:1}
+      couponstring=$couponstring$coupchar
+      #couponarray[$coupons]=$couponstring
+     done
+     couponarray[$coupons]=$couponstring
+   done
+  echo "coupon code is :${couponarray[*]} "
 }
