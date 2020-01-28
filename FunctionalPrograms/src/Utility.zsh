@@ -30,7 +30,7 @@ distance(){
   result=$((multiplicationx+multiplicationy))
   echo "$result"
   dist=$(echo "scale=3;sqrt($result)"|bc)
-  echo $dist
+  return $dist
 }
 
 #this method is used to find the quadratic equiation
