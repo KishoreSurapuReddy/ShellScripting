@@ -6,4 +6,4 @@ read X
 echo "enter the y value :"
 read Y
 val=$(distance $X $Y)
-echo "$val"
+echo "value is : $val"
