@@ -30,7 +30,7 @@ printBoard(){
       echo  -e "| \c"
      for (( col = 0; col < $Coloumn; col++ ));
       do
-         echo  -e "${board[$row,$col]} | \c"
+         echo  -e " $row $col ${board[$row,$col]} | \c"
      done
      echo
      echo "------------"
@@ -103,7 +103,7 @@ checkColoumns(){
 
 #method to check diagonals of table
 checkDiagonals(){
-  if checkRowCol ${board[0,0]} ${board[1,1]} ${board[2,2]} || checkRowCol ${board[0,2]} ${board[1,1]} ${board[2,0]};
+  if checkRowCol ${board[0,0]} ${board[1,1]} ${board[2,2]} || checkRowCol ${board[0,2]} ${board[1,1]} ${board[2,0]} $1;
    then
      return 1
    else
@@ -115,7 +115,8 @@ checkRowCol(){
   charone=$1
   chartwo=$2
   charthree=$3
-  if [[ ((( $charone == "-" )) && (( $charone == ${chartwo} )) && (( $chartwo == ${charthree} ))) ]];
+  # shellcheck disable=SC2053
+  if [[ ((( $charone == "-" )) && (( $charone == $chartwo )) && (( $chartwo == $charthree ))) ]];
    then
     return 1
    else
@@ -128,13 +129,28 @@ placeAMark(){
   row=$1
   col=$2
   echo ${#board[@]}
-  if [[ (( $row -ge 0 )) && (( $row -lt ${#board[@]} )) ]];
+  if [[ (( $row -ge 0 )) && (( $row -lt ${#board[@]} )) ]]
   then
-   if [[ (( $col -ge 0 )) && (( $col -lt ${#board[@]} )) ]];
+    echo "row $row"
+   if [[ (( $col -ge 0 )) && (( $col -lt ${#board[@]} )) ]]
    then
-    if [ ${board[$row,$col]} == "-" ];
+    echo col $col
+    if [ ${board[${row},${col}]} == "-" ]
     then
      board[$row,$col]=$currentPlayer
+     echo  0 ${board[0]}
+     echo 1 ${board[1]}
+     echo 2 ${board[2]}
+     echo  0 0 ${board[0, 0]}
+     echo  0 1 ${board[0, 1]}
+     echo  0 2 ${board[0, 2]}
+     echo  1 0 ${board[1, 0]}
+     echo  1 1 ${board[1, 1]}
+     echo  1 2 ${board[1, 2]}
+     echo  2 0 ${board[2, 0]}
+     echo  2 1 ${board[2, 1]}
+     echo  2 2 ${board[2, 2]}
+
      return 1
     fi
    fi
@@ -142,6 +158,7 @@ placeAMark(){
   return 0
 }
 
+#main
 intializeBoard $row $coloumn
 if isBoardFull  $1;then
   echo "board is full"
@@ -154,21 +171,21 @@ else
   echo "player hasn't won"
 fi
 # shellcheck disable=SC1035
-while [[ $((!isBoardFull)) && $((!isWinner)) ]];
+while [[ $(( !isBoardFull )) && $(( !isWinner )) ]];
 do
 printBoard
 echo "player $currentPlayer place the mark at empty position "
-echo "enter row value to insert:"
-read rowinsert
-echo "enter col value to insert :"
-read colinsert
-#while [[ $((!placeAMark $rowinsert $colinsert)) ]];
+echo "enter row position to insert:"
+read rowposition
+echo "enter col position to insert :"
+read coloumnposition
+#while [[ $(( !placeAMark $rowposition $coloumnposition )) ]];
+#do
 i=1;
 if [ $i -eq 1 ];
 then
-echo "$i"
-placeAMark $rowinsert $colinsert
+placeAMark $rowposition $coloumnposition
 changePlayer
-i=($i - 1 )
+#done
 fi
 done
