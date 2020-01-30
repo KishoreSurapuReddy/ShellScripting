@@ -1,6 +1,5 @@
 #!/bin/bash -x
 
-source Utility.zsh
 echo "Tic-Tok-Toy"
 echo "enter size of array :"
 read size
@@ -71,7 +70,8 @@ isBoardFull(){
 #checking wheather player has won or not
 # shellcheck disable=SC2120
 isWinner(){
- if ( checkRows || checkColoumns || checkDiagonals $1 );then
+  checkDiagonals $1
+ if ( checkRows || checkColoumns || $? );then
    # shellcheck disable=SC2152
    return 1
  else
@@ -181,7 +181,7 @@ else
   echo "player hasn't won"
 fi
 # shellcheck disable=SC1035
-val=$(isBoardFull)
+isboardfull=isBoardFull
 echo $val
 echo $isWinner
 while [[ $(( !isBoardFull )) || $(( !isWinner )) ]];
