@@ -2,22 +2,16 @@
 
 source Utility.zsh
 echo "Tic-Tok-Toy"
-echo "enter size of row :"
-read row
-echo "enter size of coloumn :"
-read coloumn
+echo "enter size of array :"
+read size
 currentPlayer="X"
 
 #intialize the board with the size
 intializeBoard(){
-  Row=$1
-  Coloumn=$2
-  for (( row = 0; row < $Row; row++ ));
+  length=$1
+  for (( index = 0; index < $length; index++ ));
    do
-    for (( col = 0; col < $Coloumn; col++ ));
-     do
-        board[$row,$col]="-"
-    done
+    board[$index]="-"
   done
 }
 
@@ -25,15 +19,27 @@ intializeBoard(){
 printBoard(){
   echo "board layout is :"
   echo "------------"
-  for (( row = 0; row < $Row; row++ ));
+  for (( index = 0; index < ${#board[@]}; index++ ));
     do
       echo  -e "| \c"
-     for (( col = 0; col < $Coloumn; col++ ));
-      do
-         echo  -e " $row $col ${board[$row,$col]} | \c"
-     done
-     echo
-     echo "------------"
+      if [ $index -lt 3 ]; then
+          echo -e "${board[$index]} | \c"
+      elif [ $index -lt 6 ]; then
+          if [ $index -eq 3 ]; then
+              echo
+              echo -e "| \c"
+          fi
+          echo -e "${board[$index]} | \c"
+          if [ $index -eq 6 ]; then
+              echo
+          fi
+      else
+         if [ $index -eq 6 ]; then
+              echo
+              echo -e "| \c"
+         fi
+        echo -e "${board[$index]} | \c"
+      fi
    done
 }
 
@@ -50,25 +56,26 @@ changePlayer(){
 
 #checking wheather board is full or not
 isBoardFull(){
-  for (( row = 0; row < $Row; row++ ));
+  for (( index = 0; index < ${#board[@]}; index++ ));
     do
-     for (( col = 0; col < $Coloumn; col++ ));
-      do
-         if [  ${board[$row,$col]}   == '-' ];
-          then
-            return 1
-         fi
-     done
+      if [  ${board[$index]}   == '-' ];
+      then
+        # shellcheck disable=SC2152
+        return 1
+      fi
    done
+   # shellcheck disable=SC2152
    return 0
 }
 
 #checking wheather player has won or not
 # shellcheck disable=SC2120
 isWinner(){
- if checkRows || checkColoumns || checkDiagonals $1;then
+ if ( checkRows || checkColoumns || checkDiagonals $1 );then
+   # shellcheck disable=SC2152
    return 1
  else
+   # shellcheck disable=SC2152
    return 0
  fi
 }
@@ -76,34 +83,54 @@ isWinner(){
 #method to check rows of table
 # shellcheck disable=SC2120
 checkRows(){
-  for (( rows = 0; rows < ${#board[@]}; rows++ ));
-   do
-     if checkRowCol ${board[$rows,0]} ${board[$rows,1]} ${board[$rows,2]}  $1;
-     then
-       return 1
-      else
-        return 0
-      fi
-  done
+    nooftimes=0;
+    positionone=0;
+    positiontwo=1;
+    positionthree=2;
+    while [ $nooftimes -lt 3 ]; do
+        echo "row $positionone"
+        echo "row1 $positiontwo"
+        echo "row $positionthree"
+        if checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}  $1;
+    then
+      return 1
+    else
+      return 0
+    fi
+    positionone=$($positionone+3)
+    positiontwo=$($positiontwo+3)
+    positionthree=$($positionthree+3)
+    nooftimes=$($nooftimes+1)
+    done
 }
 
 #method to check coloumns of table
 # shellcheck disable=SC2120
 checkColoumns(){
-   for (( cols = 0; cols < ${#board[@]}; cols++ ));
-   do
-     if checkRowCol ${board[0,$cols]} ${board[1,$cols]} ${board[2,$cols]}  $1;
-     then
-       return 1
-      else
-        return 0
-      fi
-  done
+    nooftimes=0;
+    positionone=0;
+    positiontwo=3;
+    positionthree=6;
+    while [ $nooftimes -lt 3 ]; do
+        echo "coloumn $positionone"
+        echo "coloumn $positiontwo"
+        echo "coloumn $positionthree"
+        if checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}  $1;
+    then
+      return 1
+    else
+      return 0
+    fi
+    positionone=$($positionone+1)
+    positiontwo=$($positiontwo+1)
+    positionthree=$($positionthree+1)
+    nooftimes=$($nooftimes+1)
+    done
 }
 
 #method to check diagonals of table
 checkDiagonals(){
-  if checkRowCol ${board[0,0]} ${board[1,1]} ${board[2,2]} || checkRowCol ${board[0,2]} ${board[1,1]} ${board[2,0]} $1;
+  if checkRowCol ${board[0]} ${board[4]} ${board[8]} || checkRowCol ${board[2]} ${board[4]} ${board[6]} $1;
    then
      return 1
    else
@@ -126,40 +153,23 @@ checkRowCol(){
 
 #method to place a mark at particular position
 placeAMark(){
-  row=$1
-  col=$2
+  position=$1
   echo ${#board[@]}
-  if [[ (( $row -ge 0 )) && (( $row -lt ${#board[@]} )) ]]
+  if [[ (( $position -ge 0 )) && (( $position -lt ${#board[@]} )) ]]
   then
-    echo "row $row"
-   if [[ (( $col -ge 0 )) && (( $col -lt ${#board[@]} )) ]]
-   then
-    echo col $col
-    if [ ${board[${row},${col}]} == "-" ]
+    echo $position
+    if [ ${board[${position}]} == "-" ]
     then
-     board[$row,$col]=$currentPlayer
-     echo  0 ${board[0]}
-     echo 1 ${board[1]}
-     echo 2 ${board[2]}
-     echo  0 0 ${board[0, 0]}
-     echo  0 1 ${board[0, 1]}
-     echo  0 2 ${board[0, 2]}
-     echo  1 0 ${board[1, 0]}
-     echo  1 1 ${board[1, 1]}
-     echo  1 2 ${board[1, 2]}
-     echo  2 0 ${board[2, 0]}
-     echo  2 1 ${board[2, 1]}
-     echo  2 2 ${board[2, 2]}
-
+     # shellcheck disable=SC2102
+     board[$position]=$currentPlayer
      return 1
     fi
    fi
-  fi
   return 0
 }
 
 #main
-intializeBoard $row $coloumn
+intializeBoard $size
 if isBoardFull  $1;then
   echo "board is full"
 else
@@ -171,20 +181,22 @@ else
   echo "player hasn't won"
 fi
 # shellcheck disable=SC1035
-while [[ $(( !isBoardFull )) && $(( !isWinner )) ]];
+val=$(isBoardFull)
+echo $val
+echo $isWinner
+while [[ $(( !isBoardFull )) || $(( !isWinner )) ]];
 do
 printBoard
+echo
 echo "player $currentPlayer place the mark at empty position "
-echo "enter row position to insert:"
-read rowposition
-echo "enter col position to insert :"
-read coloumnposition
-#while [[ $(( !placeAMark $rowposition $coloumnposition )) ]];
+echo "enter empty position to insert:"
+read position
+#while [[ $(( !placeAMark $position )) ]];
 #do
 i=1;
 if [ $i -eq 1 ];
 then
-placeAMark $rowposition $coloumnposition
+placeAMark $position
 changePlayer
 #done
 fi
