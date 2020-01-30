@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 echo "Tic-Tok-Toy"
 echo "enter size of array :"
@@ -70,78 +70,94 @@ isBoardFull(){
 #checking wheather player has won or not
 # shellcheck disable=SC2120
 isWinner(){
-  checkDiagonals $1
- if ( checkRows || checkColoumns || $? );then
-   # shellcheck disable=SC2152
-   return 1
- else
-   # shellcheck disable=SC2152
-   return 0
- fi
+ if checkRows $1;
+ then
+   if checkColoumns $1;
+   then
+     if checkDiagonals $1;
+     then
+       return 1
+      fi
+    fi
+  fi
+  return 0
 }
 
 #method to check rows of table
 # shellcheck disable=SC2120
 checkRows(){
-    nooftimes=0;
     positionone=0;
     positiontwo=1;
     positionthree=2;
-    while [ $nooftimes -lt 3 ]; do
         echo "row $positionone"
         echo "row1 $positiontwo"
         echo "row $positionthree"
         if checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}  $1;
-    then
-      return 1
-    else
-      return 0
-    fi
-    positionone=$($positionone+3)
-    positiontwo=$($positiontwo+3)
-    positionthree=$($positionthree+3)
-    nooftimes=$($nooftimes+1)
-    done
+         then
+           positionone=$($positionone+3)
+           positiontwo=$($positiontwo+3)
+           positionthree=$($positionthree+3)
+           if checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}  $1;
+           then
+             positionone=$($positionone+3)
+             positiontwo=$($positiontwo+3)
+             positionthree=$($positionthree+3)
+             if checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}  $1;
+             then
+               return 1
+             fi
+           fi
+       fi
+       return 0
 }
 
 #method to check coloumns of table
 # shellcheck disable=SC2120
 checkColoumns(){
-    nooftimes=0;
     positionone=0;
     positiontwo=3;
     positionthree=6;
-    while [ $nooftimes -lt 3 ]; do
         echo "coloumn $positionone"
         echo "coloumn $positiontwo"
         echo "coloumn $positionthree"
         if checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}  $1;
-    then
-      return 1
-    else
+         then
+            positionone=$($positionone+1)
+            positiontwo=$($positiontwo+1)
+            positionthree=$($positionthree+1)
+            if checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}  $1;
+              then
+                positionone=$($positionone+1)
+                positiontwo=$($positiontwo+1)
+                positionthree=$($positionthree+1)
+                if checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}  $1;
+                  then
+                    return 1
+                fi
+              fi
+          fi
       return 0
-    fi
-    positionone=$($positionone+1)
-    positiontwo=$($positiontwo+1)
-    positionthree=$($positionthree+1)
-    nooftimes=$($nooftimes+1)
-    done
 }
 
 #method to check diagonals of table
 checkDiagonals(){
-  if checkRowCol ${board[0]} ${board[4]} ${board[8]} || checkRowCol ${board[2]} ${board[4]} ${board[6]} $1;
+  if checkRowCol ${board[0]} ${board[4]} ${board[8]} $1;
    then
-     return 1
-   else
-     return 0
+     if checkRowCol ${board[2]} ${board[4]} ${board[6]} $1;
+      then
+       return 1
+     fi
   fi
+  return 0
 }
 
 checkRowCol(){
   charone=$1
   chartwo=$2
   charthree=$3
+  echo $charone
+  echo $chartwo
+  echo $charthree
   # shellcheck disable=SC2053
   if [[ ((( $charone == "-" )) && (( $charone == $chartwo )) && (( $chartwo == $charthree ))) ]];
    then
@@ -181,12 +197,23 @@ else
   echo "player hasn't won"
 fi
 # shellcheck disable=SC1035
-isboardfull=isBoardFull
-echo $val
+isboardfull=$isBoardFull
+echo $isboardfull
 echo $isWinner
 while [[ $(( !isBoardFull )) || $(( !isWinner )) ]];
 do
 printBoard
+echo
+if isBoardFull  $1;then
+  echo "board is full"
+else
+  echo "board is not full"
+fi
+if isWinner $1;then
+  echo "player has won"
+else
+  echo "player hasn't won"
+fi
 echo
 echo "player $currentPlayer place the mark at empty position "
 echo "enter empty position to insert:"
