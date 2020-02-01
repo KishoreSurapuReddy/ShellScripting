@@ -49,10 +49,8 @@ changePlayer(){
   if [ $currentPlayer == "X" ];
    then
     currentPlayer="O"
-    echo $currentPlayer
   else
    currentPlayer="X"
-   echo $currentPlayer
   fi
 }
 
@@ -178,22 +176,20 @@ isWinner() {
        return 1
        else
          return 0
-    fi
-    else
-      return 0
-  fi
-  else
-    return 0
-fi
+     fi
+     else
+       return 0
+   fi
+   else
+     return 0
+ fi
 }
 
 #method to place a mark at particular position
 placeAMark(){
   position=$1
-  echo ${#board[@]}
   if [[ (( $position -ge 0 )) && (( $position -lt ${#board[@]} )) ]]
   then
-    echo $position
     if [ ${board[${position}]} == "-" ]
     then
      board[$position]=$currentPlayer
@@ -208,19 +204,6 @@ placeAMark(){
 
 #main function
 intializeBoard $size
-isBoardFull
-if [ $? -eq 1 ] ;
- then
-  echo "board is not full"
- else
-  echo "board is full"
-fi
-isWinner
-if [ $? -eq 1 ];then
-  echo "player hasn't won"
-else
-  echo "player has won"
-fi
 istrue=0 ;
 until [ $istrue -eq 1 ];
 do
@@ -231,22 +214,20 @@ do
   if [[ ($boardfull -eq 1) && ($winner -eq 1) ]];
   then
     istrue=0
-  else
-    ((istrue++))
+    else
+      ((istrue++))
   fi
-
   if [[ ($boardfull -eq 1) || ($winner -eq 1) ]];
-   then
-     printBoard
-     echo
-     isBoardFull
-     if [ $? -eq 1 ] ;
+  then
+    printBoard
+    echo
+    isBoardFull
+    if [ $? -eq 1 ];
      then
        echo "board is not full"
-     else
-       echo "board is full"
-      fi
-
+    else
+      echo "board is full"
+    fi
     isWinner
     if [ $? -eq 1 ];then
       echo "player hasn't won"
