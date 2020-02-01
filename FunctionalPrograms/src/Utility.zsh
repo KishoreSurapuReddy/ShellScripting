@@ -10,12 +10,10 @@ function sumOfIntegers() {
         for (( third = $second+1; third < $size; third++ )); do
           (( sum=${array[first]}+${array[second]}+${array[third]} ))
             if [ $sum -eq 0 ]; then
-                echo "${rray[first]} ${array[second]} ${array[third]} are the elments of array"
+                echo "${array[first]} ${array[second]} ${array[third]} are the elments of array"
             fi
         done
-
       done
-
     done
 }
 
