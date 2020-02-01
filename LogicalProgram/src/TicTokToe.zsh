@@ -73,13 +73,10 @@ checkRowCol(){
   charone=$1
   chartwo=$2
   charthree=$3
-  #echo $charone "checkrowcol character1"
-  #echo $chartwo  "checkrowcol character2"
-  #echo $charthree "checkrowcol character3"
   if [[ ($charone != $initialchar) && ($chartwo == $charone) && ($charthree == $chartwo) ]];
    then
     return 0
-   else
+  else
     return 1
   fi
 }
@@ -89,33 +86,20 @@ checkRows(){
     positionone=0;
     positiontwo=1;
     positionthree=2;
-        #echo "row $positionone"
-        #cho "row1 $positiontwo"
-        #echo "row $positionthree"
         checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}
-       # echo $?"checkrowcol value row1"
         if [ $? -eq 1 ];
-        #echo "row valiue :$?"
          then
            positionone=$(($positionone+3))
            positiontwo=$(($positiontwo+3))
            positionthree=$(($positionthree+3))
-           #echo "row $positionone"
-           #echo "row1 $positiontwo"
-           #echo "row $positionthree"
            checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}
-#           echo $?"checkrowcol value row2"
            if [ $? -eq 1 ];
            then
              positionone=$(($positionone+3))
              positiontwo=$(($positiontwo+3))
              positionthree=$(($positionthree+3))
-             #echo "row $positionone"
-             #echo "row1 $positiontwo"
-             #echo "row $positionthree"
              checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}
              value=$?
-#             echo $value"checkrowcol value row3"
              if [ $value -eq 1 ];
              then
                return 1
@@ -135,25 +119,19 @@ checkColoumns(){
     positionone=0;
     positiontwo=3;
     positionthree=6;
-        #echo "coloumn $positionone"
-        #echo "coloumn $positiontwo"
-        #echo "coloumn $positionthree"
         checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}
-#        echo $?"checkrowcol value coloumn1"
         if [ $? -eq 1 ];
          then
             positionone=$(($positionone+1))
             positiontwo=$(($positiontwo+1))
             positionthree=$(($positionthree+1))
             checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}
-#            echo $?"checkrowcol value coloumn2"
             if [ $? -eq 1 ];
               then
                 positionone=$(($positionone+1))
                 positiontwo=$(($positiontwo+1))
                 positionthree=$(($positionthree+1))
                 checkRowCol ${board[$positionone]} ${board[$positiontwo]} ${board[$positionthree]}
-#                echo $?"checkrowcol value coloumn3"
                 if [ $? -eq 1 ];
                   then
                     return 1
@@ -171,11 +149,9 @@ checkColoumns(){
 #method to check diagonals of table
 checkDiagonals(){
   checkRowCol ${board[0]} ${board[4]} ${board[8]}
-#  echo $?"checkrowcol value diagonal1"
   if [ $? -eq 1 ];
    then
      checkRowCol ${board[2]} ${board[4]} ${board[6]}
-#     echo $?"checkrowcol value diagonal2"
      if [ $? -eq 1 ];
       then
        return 1
@@ -187,21 +163,17 @@ checkDiagonals(){
   fi
 }
 
-
 #checking wheather player has won or not
 # shellcheck disable=SC2120
 isWinner() {
   checkRows
  if [ $? -eq 1 ];
- #echo $?"checkrowcol value rows"
  then
    checkColoumns
    if [ $? -eq 1 ];
-  # echo $?"checkrowcol value coloumns"
    then
      checkDiagonals
      if [ $? -eq 1 ];
-   #  echo $?"checkrowcol value diagonals"
      then
        return 1
        else
@@ -234,32 +206,35 @@ placeAMark(){
    fi
 }
 
-#main
+#main function
 intializeBoard $size
 isBoardFull
 if [ $? -eq 1 ] ;
  then
-   echo "board is not full"
+  echo "board is not full"
  else
   echo "board is full"
 fi
-
 isWinner
 if [ $? -eq 1 ];then
   echo "player hasn't won"
 else
   echo "player has won"
 fi
-#echo isBoardFull $? "method returing something or not"
-length=0
-while [[ $length -le 11 ]];
+istrue=0 ;
+until [ $istrue -eq 1 ];
 do
   isBoardFull
   boardfull=$?
-  echo $boardfull" boardfull or not"
   isWinner
   winner=$?
-  echo $winner" winner or not "
+  if [[ ($boardfull -eq 1) && ($winner -eq 1) ]];
+  then
+    istrue=0
+  else
+    ((istrue++))
+  fi
+
   if [[ ($boardfull -eq 1) || ($winner -eq 1) ]];
    then
      printBoard
@@ -267,30 +242,31 @@ do
      isBoardFull
      if [ $? -eq 1 ] ;
      then
-     echo "board is not full"
+       echo "board is not full"
      else
-     echo "board is full"
+       echo "board is full"
       fi
 
     isWinner
     if [ $? -eq 1 ];then
-    echo "player hasn't won"
+      echo "player hasn't won"
     else
-    echo "player has won"
+      echo "player has won"
     fi
     echo
+    mark=0;
+    until [ $mark -eq 1 ];
+    do
     echo "player $currentPlayer place the mark at empty position "
     echo "enter empty position to insert:"
     read position
-    #while [ true ];
-    #do
-    i=1;
-    if [ $i -eq 1 ];
-    then
     placeAMark $position
-    changePlayer
-    #done
+    if [ $? -eq 1 ]; then
+       changePlayer
+       ((mark++))
+    else
+      mark=0
     fi
+    done
   fi
-  length=$(($length+1))
 done
